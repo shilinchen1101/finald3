@@ -8,12 +8,12 @@ function Bubble(_){
   let _h;
 
   let nodes;
-  let _forceX, _forceY, _forceSimulation;
+  let _forceX, _forceY,_forceCollide, _forceSimulation;
 
 
 
   function exports(deaths){
-
+    //var margin = { top: 20, right: 210, bottom: 50, left: 70 };
     _w = _.clientWidth;
     _h = _.clientHeight;
 
@@ -43,6 +43,25 @@ function Bubble(_){
     const root = d3.select(_);
     const tooltip = d3.select("body").append("div").attr("class", "toolTip");
 
+    const nestByUnarmed = d3.nest().key(function(d){ return d.unarmed}).entries(deaths)
+
+    const unarmed = nestByUnarmed.map(function(d){ return d.key });
+    console.log(unarmed);
+
+    const nestByMonth = d3.nest().key(function(d){ return d.month}).entries(deaths)
+
+    const month = nestByMonth.map(function(d){ return d.key });
+    console.log(month);
+
+    const nestByRace = d3.nest().key(function(d){ return d.race}).entries(deaths)
+
+    const race = nestByRace.map(function(d){ return d.key });
+    console.log(race);
+
+    const fillColor = d3.scaleOrdinal()
+      .domain(unarmed)
+      .range(['#3b4073','#560909','#94B8B8','#e6e8d2']);
+
     let svg = root
       .selectAll('.bubbleChart')
       .data([1]);
@@ -64,7 +83,8 @@ function Bubble(_){
 		nodesEnter
       .append('circle')
       .attr('r', d => d.radius)
-      .style('fill','#80B3DF');
+      .attr('fill',function(d){ return fillColor(d.unarmed);})
+
 
 		const bubbles = nodesEnter
 			.merge(myNodes)
@@ -78,13 +98,43 @@ function Bubble(_){
       })
       .on("mouseout", function(d){ tooltip.style("display", "none");});
 
-      // bubbles.append('text')
-      //   .attr('class','value')
-      //   .attr()
+
+      const legend = d3.select('.bubbleChart').append('svg')
+             .attr('class','legend')
+             .attr('width',_w)
+             .attr('height',_h)
+             .selectAll('g')
+             .data(unarmed)
+   				   .enter()
+             .append('g')
+             .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+             legend.append("rect")
+           		  .attr("width", 18)
+           		  .attr("height", 18)
+           		  .style("fill", fillColor);
+
+          	legend.append("text")
+          		  .data(unarmed)
+              	  .attr("x", 24)
+              	  .attr("y", 9)
+              	  .attr("dy", ".35em")
+              	  .text(function(d) { return d; });
+
+      const label = d3.select('.bubbleChart').append(svg)
+        .data(race)
+
+      label.enter().append('text')
+        .attr('clss','label')
+        .attr('x', function(d){ return })
+
+
+
       d3.json("./data/us-states.json").then(_map => {
         console.log(_map);
 
       const svgMap = d3.select(_).append('svg')
+             .attr('class','map')
              .attr('width',_w)
              .attr('height',_h)
              .style('position','absolute')
@@ -111,29 +161,27 @@ function Bubble(_){
       const stateData = d3.map(_map.features,function(d){return d.properties.name});
       console.log(stateData);
 
-      const centroid =  path.centroid(stateData)
-      console.log(centroid);
-
-
-
 
        });
 
 
 
 
-    const stateData = ['AK','AL','AR','AZ','CA','CO','CT','DC','DE','FL','GA','HI','IA','ID','IL','IN','KS','KY','LA','MA','MD','ME','MI','MN','MO','MS','MT','NC','ND','NE','NH','NJ','NM','NV','NY','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VA','VT','WA','WI','WV','WY']
+
+
 
     const center = { x: _w / 2, y: _h / 3 };
     _forceX = d3.forceX().strength(1).x(center.x);
     _forceY = d3.forceY().strength(1).y(center.y);
 
 
-  const forceStrength = 0.3;
+
+
+  _forceCollide = d3.forceCollide(3).radius(function(d) { return d.radius + 4; }).strength(0.7)
 
  // const simulation = _forceSimulation
   _forceSimulation = d3.forceSimulation()
-    .force("collide",d3.forceCollide(3).radius(function(d) { return d.radius + 2; }).strength(0.7) )
+    .force("collide", _forceCollide )
     .force("charge", d3.forceManyBody().strength(0.5))
     // .restart()
     .alpha(0.06)
@@ -159,15 +207,16 @@ exports.forceY = function (_) {
   _forceY =_;
   return this;
 }
-// exports.forceSimulation = function (_) {
-//   if(typeof _ ==='undefined') return _forceSimulation;
-//   _forceSimulation =_;
-//   return this;
-// }
+exports.forceCollide = function (_) {
+  if(typeof _ ==='undefined') return _forceCollide;
+  _forceCollide =_;
+  return this;
+}
 
 exports.restart = function (_) {
   _forceSimulation
     .stop()
+    .force("collide", _forceCollide )
     .force('x',_forceX)
     .force('y',_forceY)
     .alpha(0.06)

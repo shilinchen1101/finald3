@@ -15,6 +15,7 @@ export default function(d){
 		agency: d.Agency,
     description:d.Description,
 		lat:d.Latitude,
-		lon:d.Longitude
+		lon:d.Longitude,
+		unarmed:d.Unarmed
 	}
 }

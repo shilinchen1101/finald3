@@ -33,6 +33,8 @@ d3.csv('./data/pv2017.csv', parse).then(function(deaths) {
 
 const oneButton = d3.select('#btn1')
     .on('click', () => {
+      var _forceCollide = d3.forceCollide(3).radius(function(d) { return d.radius + 4; }).strength(0.7)
+
       const center = { x: _w / 2, y: _h / 3 };
 
      var _forceX = d3.forceX().strength(1.5).x(center.x);
@@ -40,6 +42,7 @@ const oneButton = d3.select('#btn1')
      var _forceY = d3.forceY().strength(1.5).y(center.y);
 
      const bubbleOne = bubble
+     .forceCollide(_forceCollide)
      .forceX(_forceX)
      .forceY(_forceY)
      .restart();
@@ -48,6 +51,8 @@ const oneButton = d3.select('#btn1')
 
  const monthButton = d3.select('#btn2')
      .on('click', () => {
+
+       var _forceCollide = d3.forceCollide(3).radius(function(d) { return d.radius + 2; }).strength(0.7)
 
       var _forceX = d3.forceX(function(d){
         if (d.month === 0 || d.month === 4 || d.month === 8) {
@@ -72,6 +77,7 @@ const oneButton = d3.select('#btn1')
       }).strength(0.7);
 
       const bubbleMonth = bubble
+      .forceCollide(_forceCollide)
       .forceX(_forceX)
       .forceY(_forceY)
       .restart();
@@ -80,6 +86,8 @@ const oneButton = d3.select('#btn1')
 
 const raceButton = d3.select('#btn3')
     .on('click', () => {
+
+      var _forceCollide = d3.forceCollide(3).radius(function(d) { return d.radius + 2; }).strength(0.7)
 
       var _forceX =d3.forceX(function(d) {
           if (d.race === 'White' || d.race === 'Native American') {
@@ -109,6 +117,7 @@ const raceButton = d3.select('#btn3')
         }).strength(0.7);
 
       const bubbleRace = bubble
+      .forceCollide(_forceCollide)
       .forceX(_forceX)
       .forceY(_forceY)
       .restart();
@@ -118,16 +127,29 @@ const raceButton = d3.select('#btn3')
         .on('click', () => {
 
 
+      _forceX = d3.forceX().strength(1).x(function(d) {
+               var el = svgMap.selectAll("path").filter(function(dd) {
+                       return dd.properties.name === d.state;
+               });
+       var centroid = path.centroid(el)
+       return centroid[0];
+
+});
+    _forceY = d3.forceY().strength(1).y(function(d) {
+
+             var el = svgMap.selectAll("path").filter(function(dd) {
+                     return dd.properties.name === d.state;
+             });
+
+     var centroid = path.centroid(el)
+     return centroid[1];
+    });
 
 
-          //var _forceX = d3.forceX(function(d){ return d.mx}).strength(0.7);
 
-          //var _forceY = d3.forceY(function(d){ return d.my}).strength(0.7);
-
-
-
-        //const bubbleState = bubble
-        //.forceX(_forceX)
-        //.forceY(_forceY)
-        //.restart();
+        const bubbleState = bubble
+        .forceCollide(_forceCollide)
+        .forceX(_forceX)
+        .forceY(_forceY)
+        .restart();
         });
