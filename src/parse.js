@@ -6,6 +6,7 @@ export default function(d){
 	return {
 		t: t,
 		month:t.getMonth(),
+		date:t.toDateString(),
 		name: d.VictimsName,
 		age: d.VictimsAge,
 		gender: d.VictimsGender,

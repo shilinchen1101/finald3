@@ -7,13 +7,14 @@ function Bubble(_){
   let _w;
   let _h;
 
+
   let nodes;
   let _forceX, _forceY,_forceCollide, _forceSimulation;
-
+  const dispatcher = d3.dispatch ('getMapData');
 
 
   function exports(deaths){
-    //var margin = { top: 20, right: 210, bottom: 50, left: 70 };
+
     _w = _.clientWidth;
     _h = _.clientHeight;
 
@@ -37,33 +38,22 @@ function Bubble(_){
     });
 
     console.log(nodes);
-    // _forceSimulation.nodes(nodes);
-    //return nodes;
+
 
     const root = d3.select(_);
+
     const tooltip = d3.select("body").append("div").attr("class", "toolTip");
 
     const nestByUnarmed = d3.nest().key(function(d){ return d.unarmed}).entries(deaths)
 
     const unarmed = nestByUnarmed.map(function(d){ return d.key });
-    console.log(unarmed);
-
-    const nestByMonth = d3.nest().key(function(d){ return d.month}).entries(deaths)
-
-    const month = nestByMonth.map(function(d){ return d.key });
-    console.log(month);
-
-    const nestByRace = d3.nest().key(function(d){ return d.race}).entries(deaths)
-
-    const race = nestByRace.map(function(d){ return d.key });
-    console.log(race);
 
     const fillColor = d3.scaleOrdinal()
       .domain(unarmed)
-      .range(['#3b4073','#560909','#94B8B8','#e6e8d2']);
+      .range(['#3b4073','#560909','#94B8B8','#E2A370']);
 
     let svg = root
-      .selectAll('.bubbleChart')
+      .selectAll('bubbleChart')
       .data([1]);
 
     svg = svg.enter().append('svg')
@@ -90,16 +80,24 @@ function Bubble(_){
 			.merge(myNodes)
 			.attr('transform', d => `translate(${d.x}, ${d.y})`)
       .on("mousemove", function(d){
+        var bubbles = d3.select(this);
+        bubbles
+          .attr("stroke-width", 3)
+          .attr('stroke','#D2BBB0');
           tooltip
             .style("left", d3.event.pageX - 50 + "px")
-            .style("top", d3.event.pageY - 70 + "px")
+            .style("top", d3.event.pageY - 120 + "px")
             .style("display", "inline-block")
-            .html("Name:"+ (d.name) + "<br>" + 'Age:'+(d.age) + "<br>" + 'Gender:' + (d.gender)+ "<br>" + 'Race:'+(d.race)+ "<br>" + 'Date:'+(d.t));
+            .html("Name:"+ (d.name) + "<br>" + 'Age:'+(d.age) + "<br>" + 'Gender:' + (d.gender)+ "<br>" + 'Race:'+(d.race) + "<br>" + 'State:'+(d.state)+"<br>" + 'Date:'+(d.date));
       })
-      .on("mouseout", function(d){ tooltip.style("display", "none");});
+      .on("mouseout", function(d){
+        d3.select(this)
+          .attr('stroke-opacity','0')
+        tooltip.style("display", "none");
+      });
 
 
-      const legend = d3.select('.bubbleChart').append('svg')
+      const legend = d3.select('svg').append('svg')
              .attr('class','legend')
              .attr('width',_w)
              .attr('height',_h)
@@ -121,12 +119,93 @@ function Bubble(_){
               	  .attr("dy", ".35em")
               	  .text(function(d) { return d; });
 
-      const label = d3.select('.bubbleChart').append(svg)
-        .data(race)
+          var victimTitle = {'1142':{x:_w/2,y:_h/2}};
+          var victimData = d3.keys(victimTitle);
+          var victim = svg.selectAll('.victim')
+            .data(victimData);
+          victim.enter().append('text')
+            .attr('class', 'victim')
+            .attr('x', function (d) { return victimTitle[d].x; })
+            .attr('y', function (d) { return victimTitle[d].y - 220; })
+            .attr('text-anchor', 'middle')
+            .text(function (d) { return d; });
+         d3.selectAll('.victim').style('opacity', 1);
 
-      label.enter().append('text')
-        .attr('clss','label')
-        .attr('x', function(d){ return })
+
+
+          var monthTitleX = {
+              'January:106': { x: _w/5, y: _h/4 },
+              'February:107': { x:2*_w/5, y: _h/4 },
+              'March:93': { x:3*_w/5, y: _h/4 },
+              'April:75': { x:4*_w/5, y: _h/4 },
+              'May:99': { x:_w/5, y: 2*_h/4 },
+              'June:98': { x:2*_w/5, y: 2*_h/4 },
+              'July:113': { x:3*_w/5, y: 2*_h/4 },
+              'August:95': { x:4*_w/5, y: 2*_h/4 },
+              'September:76': { x:_w/5, y: 3*_h/4 },
+              'October:94': { x:2*_w/5, y: 3*_h/4 },
+              'November:99': { x:3*_w/5, y: 3*_h/4 },
+              'December:87': { x:4*_w/5, y: 3*_h/4 }
+            };
+
+      var monthData = d3.keys(monthTitleX);
+       var month = svg.selectAll('.month')
+         .data(monthData);
+         console.log(monthData);
+       month.enter().append('text')
+         .attr('class', 'month')
+         .attr('x', function (d) { return monthTitleX[d].x; })
+         .attr('y', function (d) { return monthTitleX[d].y - 80; })
+         .attr('text-anchor', 'middle')
+         .text(function (d) { return d; });
+      d3.selectAll('.month').style('opacity', 0);
+
+      var raceTitleX = {
+          'White:524': { x: _w/4, y: _h/4 },
+          'Hispanic:238': { x:_w/2, y: _h/4 },
+          'Black:284': { x:3*_w/4, y: _h/4 },
+          'Unknown race:50': { x:_w/4, y: 8*_h/10 },
+          'Native American:27': { x:_w/4, y: 3*_h/5 },
+          'Pacific Islander:7': { x:_w/2, y: 3*_h/5 },
+          'Asian:12': { x:3*_w/4, y: 3*_h/5 }
+        };
+
+        var raceData = d3.keys(raceTitleX);
+         var race = svg.selectAll('.race')
+           .data(raceData);
+         race.enter().append('text')
+           .attr('class', 'race')
+           .attr('x', function (d) { return raceTitleX[d].x; })
+           .attr('y', function (d) { return raceTitleX[d].y - 80; })
+           .attr('text-anchor', 'middle')
+           .text(function (d) { return d; });
+      d3.selectAll('.race').style('opacity', 0);
+        var raceData = d3.keys(raceTitleX);
+         var race = svg.selectAll('.race')
+           .data(raceData);
+         race.enter().append('text')
+           .attr('class', 'race')
+           .attr('x', function (d) { return raceTitleX[d].x; })
+           .attr('y', function (d) { return raceTitleX[d].y - 80; })
+           .attr('text-anchor', 'middle')
+           .text(function (d) { return d; });
+      d3.selectAll('.race').style('opacity', 0);
+
+
+        var raceData = d3.keys(raceTitleX);
+         var race = svg.selectAll('.race')
+           .data(raceData);
+         race.enter().append('text')
+           .attr('class', 'race')
+           .attr('x', function (d) { return raceTitleX[d].x; })
+           .attr('y', function (d) { return raceTitleX[d].y - 80; })
+           .attr('text-anchor', 'middle')
+           .text(function (d) { return d; });
+      d3.selectAll('.race').style('opacity', 0);
+
+
+
+
 
 
 
@@ -137,8 +216,11 @@ function Bubble(_){
              .attr('class','map')
              .attr('width',_w)
              .attr('height',_h)
+             .append('g')
+             .attr('class','map-g')
+             .attr('transform', 'translate(0, 200)')
              .style('position','absolute')
-             .style('top',200)
+             .style('top',0)
              .style('left',0);
       const projection = d3.geoAlbersUsa()
   				   .translate([_w/2, _h/4])
@@ -156,12 +238,10 @@ function Bubble(_){
           .attr("stroke","#FFFFFF")
           .attr("fill",'rgba(0, 30, 64, .1)');
 
+          const stateData = d3.map(_map.features,function(d){return d.properties.name});
+          dispatcher.call('getMapData', this, stateData)
 
-
-      const stateData = d3.map(_map.features,function(d){return d.properties.name});
-      console.log(stateData);
-
-
+          d3.selectAll('.map').style('opacity', 0);
        });
 
 
@@ -169,8 +249,7 @@ function Bubble(_){
 
 
 
-
-    const center = { x: _w / 2, y: _h / 3 };
+    const center = { x: _w / 2, y: _h / 2 };
     _forceX = d3.forceX().strength(1).x(center.x);
     _forceY = d3.forceY().strength(1).y(center.y);
 
@@ -212,6 +291,12 @@ exports.forceCollide = function (_) {
   _forceCollide =_;
   return this;
 }
+
+exports.on = function (event, cb) {
+  dispatcher.on(event, cb)
+  return this;
+}
+
 
 exports.restart = function (_) {
   _forceSimulation

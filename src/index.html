@@ -5,16 +5,31 @@
    	 	<meta name="viewport" content="width=device-width">
 	</head>
 	<body>
-		<div class="container">
-    <h1>Police Violence</h1>
+    <div class="header"><p class='title'>Visualizing Police Killings in the U.S for the year 2017</p></div>
     <div id="toolbar">
 			<button id="btn1">All victims</button>
 			<button id="btn2">By Months</button>
 			<button id="btn3">By Race</button>
 			<button id="btn4">By Location</button>
     </div>
-    <div id="vis">
+		<div class="container">
+		<div class="leftcolumn">
+			<p class="de">Each circle ● represents a victim who was killed by police in the United States.</br></br>
+			Hover over any of them to see the victim information.</p></br>
+			<p>Police violence is a conscious and deliberate action that a police officer undertakes toward suspects who are usually members of a powerless social group.</p>
+			<p>1,142 people were killed by police in 2017.</p>
+			<p>On average, there are around three police shootings for each day in the United States.</p>
+			<p>We were able to determine the race for 1,142 individuals - 284 of them were black. That's almost 24%.</p>
+			<p>Most unarmed people killed by police were people of color.</p>
+			<p>Half of those killed by police were reportedly armed with a gun.</p>
+			<p>California has had more police shootings than any other state, with 186.</p>
+	</br>
+			<p class="source">Source:<a href="https://mappingpoliceviolence.org/aboutthedata/">MAPPING POLICE VIOLENCE</a></p>
+			<p class='credit'>Made by Shilin Chen</p>
 		</div>
+    <div class='rightcolumn' id="vis"></div>
+	</div>
+
 		<script src="https://unpkg.com/topojson@3"></script>
 		<script src='bundle.js' type='text/javascript'></script>
 	</body>
