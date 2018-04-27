@@ -24,7 +24,7 @@ function Bubble(_){
 
     const path = d3.geoPath()
         .projection(projection);
-
+//data transformation
     nodes = deaths.map(d => {
       const [mx,my] = projection([d.lon, d.lat]);
       return{
@@ -41,9 +41,9 @@ function Bubble(_){
 
 
     const root = d3.select(_);
-
+//add tooltip
     const tooltip = d3.select("body").append("div").attr("class", "toolTip");
-
+//add legend
     const nestByUnarmed = d3.nest().key(function(d){ return d.unarmed}).entries(deaths)
 
     const unarmed = nestByUnarmed.map(function(d){ return d.key });
@@ -51,7 +51,7 @@ function Bubble(_){
     const fillColor = d3.scaleOrdinal()
       .domain(unarmed)
       .range(['#3b4073','#560909','#94B8B8','#E2A370']);
-
+//append dom elements
     let svg = root
       .selectAll('bubbleChart')
       .data([1]);
@@ -96,7 +96,7 @@ function Bubble(_){
         tooltip.style("display", "none");
       });
 
-
+//draw legends to show catagories
       const legend = d3.select('svg').append('svg')
              .attr('class','legend')
              .attr('width',_w)
@@ -118,7 +118,7 @@ function Bubble(_){
               	  .attr("y", 9)
               	  .attr("dy", ".35em")
               	  .text(function(d) { return d; });
-
+//add labels
           var victimTitle = {'1142':{x:_w/2,y:_h/2}};
           var victimData = d3.keys(victimTitle);
           var victim = svg.selectAll('.victim')
@@ -208,7 +208,7 @@ function Bubble(_){
 
 
 
-
+//draw map
       d3.json("./data/us-states.json").then(_map => {
         console.log(_map);
 
@@ -248,7 +248,7 @@ function Bubble(_){
 
 
 
-
+//set forcelayout related
     const center = { x: _w / 2, y: _h / 2 };
     _forceX = d3.forceX().strength(1).x(center.x);
     _forceY = d3.forceY().strength(1).y(center.y);

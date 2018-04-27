@@ -1,16 +1,16 @@
 import * as d3 from 'd3';
 import '../style/main.css';
 import '../style/btn.css';
-
+//import parse function
 import parse from './parse';
+//import modules
 import Bubble from './Bubble';
-//import Map from './Map'
-// import Button from './Button';
+
 
 var forceSimulation = d3.forceSimulation();
 var _h = document.getElementById('vis').clientHeight;
 var _w = document.getElementById('vis').clientWidth;
-
+//create modules
 const bubble = Bubble( document.querySelector('#vis') );
 
 const projection = d3.geoAlbersUsa()
@@ -21,14 +21,14 @@ const path = d3.geoPath()
     .projection(projection);
 
 
-
+//import data using promise interface
 d3.csv('./data/pv2017.csv', parse).then(function(deaths) {
   bubble(deaths);
 });
 
 
 
-
+//connect button with force
 const oneButton = d3.select('#btn1')
     .on('click', () => {
       d3.select('.map').style('opacity', 0);
@@ -134,7 +134,7 @@ const raceButton = d3.select('#btn3')
       .restart();
     });
 
-
+//set dispatch
     let stateData;
     bubble.on('getMapData', function (d) {
       stateData = d;
